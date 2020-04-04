@@ -9,9 +9,9 @@ const compression = require("compression");
 const express = require("express");
 const app = express();
 const http = require("http").Server(app);
-const io = require("socket.io")(http);
 const cookieParser = require("cookie-parser");
 const uuidv1 = require("uuid/v1");
+const fs = require('fs');
 
 const constants = require("./public/js/constants");
 const Persistence = require("./src/Persistence");
@@ -21,8 +21,28 @@ const SessionModule = require("./Session");
 const Session = SessionModule.Session;
 const Sessions = SessionModule.Sessions;
 
+const privateKey = fs.readFileSync(process.env.PRIVATEKEY || './certs/privkey.pem', 'utf8');
+const certificate = fs.readFileSync(process.env.CERT || './certs/cert.pem', 'utf8');
+const ca = fs.readFileSync(process.env.CA || './certs/chain.pem', 'utf8');
+
+const credentials = {
+	key: privateKey,
+	cert: certificate,
+	ca,	
+};
+
+const https = require('https').Server(credentials, app);
+const io = require('socket.io')(https);
+
+
 app.use(compression());
 app.use(cookieParser());
+
+app.use((request, response) => {
+	if(!request.secure) {
+		response.redirect("https://" + request.headers.host + request.url);
+	}
+});
 
 function shortguid() {
 	function s4() {
@@ -726,4 +746,10 @@ Promise.all([Persistence.InactiveConnections, Persistence.InactiveSessions]).the
 		if (err) throw err;
 		console.log("listening on port " + port);
 	});
+});
+
+https.listen(443, (err) => {
+        if(err)
+               throw err;
+        console.log('listening securely on port 443');
 });
