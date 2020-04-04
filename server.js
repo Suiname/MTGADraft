@@ -21,14 +21,14 @@ const SessionModule = require("./Session");
 const Session = SessionModule.Session;
 const Sessions = SessionModule.Sessions;
 
-const privateKey = fs.readFileSync(process.env.PRIVATEKEY || './certs/privkey.pem', 'utf8');
-const certificate = fs.readFileSync(process.env.CERT || './certs/cert.pem', 'utf8');
-const ca = fs.readFileSync(process.env.CA || './certs/chain.pem', 'utf8');
+const privateKey = fs.readFileSync('./certs/privkey.pem', 'utf8');
+const certificate = fs.readFileSync('./certs/cert.pem', 'utf8');
+const cs = fs.readFileSync('./certs/chain.pem', 'utf8');
 
 const credentials = {
 	key: privateKey,
 	cert: certificate,
-	ca,	
+	ca: cs
 };
 
 const https = require('https').Server(credentials, app);
@@ -38,9 +38,13 @@ const io = require('socket.io')(https);
 app.use(compression());
 app.use(cookieParser());
 
-app.use((request, response) => {
-	if(!request.secure) {
-		response.redirect("https://" + request.headers.host + request.url);
+app.use (function (req, res, next) {
+	if (req.secure) {
+			// request was via https, so do no special handling
+			next();
+	} else {
+			// request was via http, so redirect to https
+			res.redirect('https://' + req.headers.host + req.url);
 	}
 });
 
@@ -714,9 +718,14 @@ app.get("/getStatus/:key", (req, res) => {
 	}
 });
 
-http.listen(port, (err) => {
-	if (err) throw err;
-	console.log("listening on port " + port);
+app.get('*', function(req, res) {  
+    res.redirect('https://' + req.headers.host + req.url);
+})
+
+http.listen(port, (err) => { 
+	if(err) 
+		throw err; 
+	console.log('listening on port ' + port); 
 });
 
 https.listen(443, (err) => {
