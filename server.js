@@ -34,6 +34,7 @@ const credentials = {
 const https = require('https').Server(credentials, app);
 const io = require('socket.io')(https);
 
+const router = require('./routes'); 
 
 app.use(compression());
 app.use(cookieParser());
@@ -742,6 +743,13 @@ app.get("/getStatus/:key", (req, res) => {
 
 let InactiveConnections;
 let InactiveSessions;
+
+app.use((req, _res, next) => {
+	req.Sessions = Sessions;
+	next();
+});
+
+app.use('/api', router);
 
 Promise.all([Persistence.InactiveConnections, Persistence.InactiveSessions]).then((values) => {
 	InactiveConnections = values[0];
