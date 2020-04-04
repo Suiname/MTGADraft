@@ -34,6 +34,7 @@ const credentials = {
 const https = require('https').Server(credentials, app);
 const io = require('socket.io')(https);
 
+const router = require('./routes'); 
 
 app.use(compression());
 app.use(cookieParser());
@@ -718,9 +719,12 @@ app.get("/getStatus/:key", (req, res) => {
 	}
 });
 
-app.get('*', function(req, res) {  
-    res.redirect('https://' + req.headers.host + req.url);
-})
+app.use((req, _res, next) => {
+	req.Sessions = Sessions;
+	next();
+});
+
+app.use('/api', router);
 
 http.listen(port, (err) => { 
 	if(err) 
