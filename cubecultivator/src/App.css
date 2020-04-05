@@ -1,5 +1,4 @@
 .App {
-  text-align: center;
 }
 
 .App-logo {
@@ -35,4 +34,66 @@
   to {
     transform: rotate(360deg);
   }
+}
+
+#cardContainerHeader {
+  text-align: center;
+}
+
+#cardContainer {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  max-height: 475px;
+  overflow: scroll;
+}
+
+.card {
+  margin: 1px;
+  border-style: solid;
+  border-width: 5px;
+  border-color: transparent;
+  max-height: 225px;
+}
+
+.active {
+  border-style: solid;
+  border-radius: 5px;
+  border-color: rgb(62, 220, 62);;
+}
+
+.card img {
+  height: 225px;
+  width: 150px;
+}
+
+#selectorContainer {
+  text-align: center;
+  height: 25px;
+}
+#selectorContainer button{
+  background-color: rgb(62, 220, 62);
+  margin: 10px  ;
+}
+
+#listContainer {
+  margin: 20px;
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  align-items: left;
+  justify-content: left;
+  max-height: 300px;
+  max-width: 95%;
+  overflow: auto;
+}
+
+#listContainerHeader {
+  text-align: center;
+}
+
+.listItem button{
+  margin-left: 5px;
 }
