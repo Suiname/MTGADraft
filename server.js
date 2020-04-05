@@ -21,33 +21,42 @@ const SessionModule = require("./Session");
 const Session = SessionModule.Session;
 const Sessions = SessionModule.Sessions;
 
-const privateKey = fs.readFileSync('./certs/privkey.pem', 'utf8');
-const certificate = fs.readFileSync('./certs/cert.pem', 'utf8');
-const cs = fs.readFileSync('./certs/chain.pem', 'utf8');
+let https, io;
+if (process.env.NODE_ENV == 'production') { // Load certs in production, run sockets over SSL
+	const privateKey = fs.readFileSync('./certs/privkey.pem', 'utf8');
+	const certificate = fs.readFileSync('./certs/cert.pem', 'utf8');
+	const cs = fs.readFileSync('./certs/chain.pem', 'utf8');
 
-const credentials = {
-	key: privateKey,
-	cert: certificate,
-	ca: cs
-};
+	const credentials = {
+		key: privateKey,
+		cert: certificate,
+		ca: cs
+	};
 
-const https = require('https').Server(credentials, app);
-const io = require('socket.io')(https);
+	https = require('https').Server(credentials, app);
+	io = require('socket.io')(https);
+} else {
+	io = require('socket.io')(http);
+}
+
 
 const router = require('./routes'); 
 
 app.use(compression());
 app.use(cookieParser());
 
-app.use (function (req, res, next) {
-	if (req.secure) {
-			// request was via https, so do no special handling
-			next();
-	} else {
-			// request was via http, so redirect to https
-			res.redirect('https://' + req.headers.host + req.url);
-	}
-});
+if (process.env.NODE_ENV == 'production') {  // Force SSL if in production
+	app.use (function (req, res, next) {
+		if (req.secure) {
+				// request was via https, so do no special handling
+				next();
+		} else {
+				// request was via http, so redirect to https
+				res.redirect('https://' + req.headers.host + req.url);
+		}
+	});
+}
+
 
 function shortguid() {
 	function s4() {
@@ -731,9 +740,10 @@ http.listen(port, (err) => {
 		throw err; 
 	console.log('listening on port ' + port); 
 });
-
-https.listen(443, (err) => {
-        if(err)
-               throw err;
-        console.log('listening securely on port 443');
-});
+if (process.env.NODE_ENV == 'production') {
+	https.listen(443, (err) => {
+		if(err)
+				throw err;
+		console.log('listening securely on port 443');
+	});
+}
