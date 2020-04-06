@@ -39,6 +39,10 @@
 #cardContainerHeader {
   text-align: center;
 }
+#cardContainerHeader button{
+  margin-left: 2px;
+  margin-right: 2px;
+}
 
 #cardContainer {
   display: flex;
@@ -46,7 +50,7 @@
   flex-wrap: wrap;
   align-items: center;
   justify-content: center;
-  max-height: 475px;
+  max-height: 400px;
   overflow: scroll;
 }
 
@@ -56,9 +60,10 @@
   border-width: 5px;
   border-color: transparent;
   max-height: 225px;
+  max-width: 150px;
 }
 
-.active {
+.card.active {
   border-style: solid;
   border-radius: 5px;
   border-color: rgb(62, 220, 62);;
@@ -94,6 +99,44 @@
   text-align: center;
 }
 
+#statContainer {
+  float: left;
+}
+#statContainer span{
+  margin-left: 10px;
+}
+
+#pageCountContainer {
+  float: right;
+}
+
+#pageCountContainer span{
+  margin-right: 10px;
+}
+
 .listItem button{
   margin-left: 5px;
+}
+
+.menu {
+  position: relative;
+  top: -175px;
+  text-align: center;
+  visibility: hidden;
+}
+
+.menu.active {
+  visibility: visible;
+}
+
+#prevPage {
+  float: left;
+}
+
+#nextPage {
+  float: right;
+}
+
+#nameFilter {
+  margin-left: 2px;
 }
