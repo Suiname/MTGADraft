@@ -9,15 +9,15 @@ router.get('/:session', (req, res) => {
 			collection = req.Sessions[req.params.session].collection();
 		} catch (error) {
 			console.log('error: ', error);
-			res.status(500).send('Internal Server Error');
+			return res.status(500).send('Internal Server Error');
 		}
 	} else {
-		res.status(400).send('Bad Request');
+		return res.status(400).send('Bad Request');
 	}
 	if (collection) {
-		res.send(collection);
+		return res.send(collection);
 	} else {
-		res.status(404).send('Not Found');
+		return res.status(404).send('Not Found');
 	}
 });
 
