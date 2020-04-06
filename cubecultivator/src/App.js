@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './App.css';
+import 'fetch';
 
-const collection = require('./devData/collection.json');
 const Cards = require('./devData/MTGACards.json');
 
 const Card = ({active, index, onClick}) => {
@@ -12,9 +12,29 @@ const Card = ({active, index, onClick}) => {
   );
 };
 
+const getParams = (location) => {
+  const searchParams = new URLSearchParams(location.search);
+  return {
+    session: searchParams.get('session') || '',
+  };
+}
+
 function App() {
   const [chosen, setChosen] = useState();
   const [selected, setSelected] = useState([]);
+  const [collection, setCollection] = useState({});
+
+  useEffect(() => {
+    const { session } = getParams(window.location);
+    async function fetchData() {
+      const res = await fetch(`/api/collection/${session}`);
+      res
+      .json()
+      .then(res => setCollection(res));
+    }
+    fetchData();
+  });
+ 
   const removeFromList = (id) => {
     const filtered = selected.filter(selection => id !== selection);
     setSelected(filtered);
