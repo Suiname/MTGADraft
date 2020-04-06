@@ -64,6 +64,7 @@
 			<span>
 				<label for="file-input">MTGA Collection</label><input type="file" id="file-input" @change="parseMTGALog" style="display:none" accept=".txt" /><button onclick="document.querySelector('#file-input').click()" title="Import your collection by uploading your output_log.txt">Upload <i v-if="hasCollection" class="fas fa-check green" title="Collection uploaded."></i></button>
 				<button v-if="hasCollection" title="Stats." @click="showCollectionStats = true">Stats</button>
+				<a v-bind:href="'/cube/?session='+ draftLog.sessionID" v-if="hasCollection" target=”_blank”><button title="Make Cube.">Make Cube</button></a>
 				<span  v-show="Object.keys(collection).length > 0">
 					<input type="checkbox" v-model="useCollection" id="useCollection" title="Uncheck this to draft using every cards. Ignored when using a Custom Card List." /><label for="useCollection">Restrict to Collection</label>
 				</span>
