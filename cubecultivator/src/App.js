@@ -4,7 +4,7 @@ import 'fetch';
 import { Card, CheckboxFilter } from './components';
 
 const debugCollection = require('./devData/collection.json');
-const Cards = require('./devData/MTGACards.json');
+const debugCards = require('./devData/debugCards.json');
 const debugging = process.env.REACT_APP_DEBUGGING === 'true';
 
 const getParams = (location) => {
@@ -16,42 +16,72 @@ const getParams = (location) => {
 
 
 function App() {
-
-  // Hook definitions
-  const [chosen, setChosen] = useState();
-  const [selected, setSelected] = useState([]);
-  const [collection, setCollection] = useState({});
-  const [page, setPage] = useState(1);
-  const [nameFilter, setNameFilter] = useState("");
-  const [colorFilter, setColorFilter] = useState({
+  // Initial states
+  const initColorFilterState = {
     W: true,
     U: true,
     B: true,
     R: true,
     G: true,
-  });
-  const [rarityFilter, setRarityFilter] = useState({
+  };
+
+  const initRarityFilterState = {
     common: true,
     uncommon: true,
     rare: true,
     mythic: true,
-  });
+  };
+
+  // Hook definitions
+  const [chosen, setChosen] = useState();
+  const [selected, setSelected] = useState([]);
+  const [collection, setCollection] = useState({});
+  const [Cards, setCards] = useState({});
+  const [page, setPage] = useState(1);
+  const [nameFilter, setNameFilter] = useState("");
+  const [colorFilter, setColorFilter] = useState(initColorFilterState);
+  const [rarityFilter, setRarityFilter] = useState(initRarityFilterState);
+  const [loading, setLoading] = useState({Cards: true, collection: true});
 
   // Effect Hooks
   useEffect(() => {
     if (debugging) {
       setCollection(debugCollection);
+      setLoading({collection: false});
     } else {
       const { session } = getParams(window.location);
       async function fetchData() {
         const res = await fetch(`/api/collection/${session}`);
         res
         .json()
-        .then(res => setCollection(res));
+        .then(res => {
+          setCollection(res);
+          setLoading((l) => ({...l, collection: false}));
+        });
       }
       fetchData();
     }
   }, []);
+
+  useEffect(() => {
+    if (debugging) {
+      setCards(debugCards);
+      setLoading({Cards: false});
+    } else {
+      async function fetchCards() {
+        const res = await fetch('/api/cards/all');
+        res
+        .json()
+        .then(res => {
+          setCards(res);
+          setLoading((l) => ({...l, Cards: false}));
+        });
+      }
+      fetchCards();
+    }
+  }, []);
+
+  
  
   // Component Utility functions
   const removeFromList = (id) => {
@@ -107,16 +137,19 @@ function App() {
   // Objects for use in component
   const collectionArray = Object.keys(collection);
   const filteredArray = collectionArray
-    .filter(filterByName)
-    .filter(filterByColor)
-    .filter(filterByRarity);
+    .filter(nameFilter !== "" ? filterByName : () => true)
+    .filter(Object.values(colorFilter).includes(false) ? filterByColor : () => true)
+    .filter(Object.values(rarityFilter).includes(false) ? filterByRarity : () => true);
   const pageSize = 25;
   const pages = Math.ceil(filteredArray.length / pageSize);
   const paginatedCollection = paginate(filteredArray, page, pageSize);
-
+  const pageLoading = loading.Cards || loading.collection;
   return (
     <div className="App">
-      <div id="cardContainerHeader">
+      {
+        !pageLoading &&
+        <Fragment>
+        <div id="cardContainerHeader">
         <h5>Group collection - Total Cards: {filteredArray.length} {filteredArray.length < collectionArray.length && '(Filtered)'}</h5>
         <div>
           <label htmlFor="nameFilter">
@@ -182,6 +215,12 @@ function App() {
           )
         }
       </div>
+      </Fragment>
+      }
+      {
+        pageLoading &&
+        <div id="loader">Loading <div class="lds-roller"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div></div>
+      }
     </div>
   );
 }
