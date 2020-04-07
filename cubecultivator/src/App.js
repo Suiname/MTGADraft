@@ -1,6 +1,7 @@
 import React, { useState, useEffect, Fragment } from 'react';
 import './App.css';
 import 'fetch';
+import { Card, CheckboxFilter } from './components';
 
 const debugCollection = require('./devData/collection.json');
 const Cards = require('./devData/MTGACards.json');
@@ -12,18 +13,6 @@ const getParams = (location) => {
     session: searchParams.get('session') || '',
   };
 }
-
-const Card = ({active, index, onClick, selected, addToCube, removeFromList}) => {
-  return (
-    <div onClick={onClick} id={index} className={active ? "card active" : "card"}>
-      <img src={Cards[index].image_uris.en} alt={Cards[index].name}/>
-      <div className={active ? "menu active" : "menu"}>
-        {!selected.includes(index) && <button onClick={addToCube}>Add to Cube</button>}
-        {selected.includes(index) && <button onClick={() => removeFromList(index)}>Remove from Cube</button>}
-      </div>
-    </div>
-  );
-};
 
 
 function App() {
@@ -132,29 +121,21 @@ function App() {
           </label>
           <span> Filter by Color: </span>
           {
-            Object.keys(colorFilter).map((color) => 
-              <label>
-              {color}
-              <input
-                style={{marginLeft:2, marginRight: 5}}
-                name={color}
-                type="checkbox"
-                checked={colorFilter[color]}
-                onChange={(e) => checkboxChange(e, colorFilter, setColorFilter)} />
-              </label>)
+            <CheckboxFilter 
+              filterState={colorFilter}
+              hook={setColorFilter}
+              checkboxChange={checkboxChange}
+              style={{marginLeft:2, marginRight: 5}}
+              />
           }
           <span> Filter by Rarity: </span>
           {
-            Object.keys(rarityFilter).map((rarity) => 
-              <label>
-              {rarity}
-              <input
-                style={{marginLeft:2, marginRight: 10}}
-                name={rarity}
-                type="checkbox"
-                checked={rarityFilter[rarity]}
-                onChange={(e) => checkboxChange(e, rarityFilter, setRarityFilter)} />
-              </label>)
+            <CheckboxFilter 
+              filterState={rarityFilter}
+              hook={setRarityFilter}
+              checkboxChange={checkboxChange}
+              style={{marginLeft:2, marginRight: 10}}
+              />
           }
         </div>
           {
@@ -169,6 +150,7 @@ function App() {
         {
           paginatedCollection.map((key) => 
             <Card 
+              Cards={Cards}
               active={key === chosen}
               index={key}
               onClick={() => setChosen(key)}
