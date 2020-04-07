@@ -80,11 +80,15 @@ function App() {
   const filterChange = (e, hook) => {
     e.preventDefault();
     hook(e.target.value);
+    // Reset Page to 1
+    setPage(1);
   }
   const checkboxChange = (e, state, hook) => {
     const name = e.target.name;
     const checked = e.target.checked;
     hook({ ...state, [name]: checked });
+    // Reset Page to 1
+    setPage(1);
   }
   const filterByName = (id) => {
     return Cards[id].name.toLowerCase().includes(nameFilter.toLowerCase());
