@@ -1,7 +1,6 @@
 const express = require('express');
 const router = express.Router();
 
-// define the home page route
 router.get('/:session', (req, res) => {
 	let collection;
 	if (req.params.session) {
