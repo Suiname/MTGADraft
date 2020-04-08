@@ -1,7 +1,7 @@
 import React, { useState, useEffect, Fragment } from 'react';
 import './App.css';
 import 'fetch';
-import { Card, CheckboxFilter } from './components';
+import { Card, CheckboxFilter, DropdownFilter } from './components';
 
 const debugCollection = require('./devData/collection.json');
 const debugCards = require('./devData/debugCards.json');
@@ -41,6 +41,7 @@ function App() {
   const [nameFilter, setNameFilter] = useState("");
   const [colorFilter, setColorFilter] = useState(initColorFilterState);
   const [rarityFilter, setRarityFilter] = useState(initRarityFilterState);
+  const [setFilter, setSetFilter] = useState('none');
   const [loading, setLoading] = useState({Cards: true, collection: true});
 
   // Effect Hooks
@@ -120,26 +121,31 @@ function App() {
     // Reset Page to 1
     setPage(1);
   }
-  const filterByName = (id) => {
-    return Cards[id].name.toLowerCase().includes(nameFilter.toLowerCase());
+  const selectChange = (e) => {
+    setSetFilter(e.target.value);
+    setPage(1);
   };
+  const filterByName = (id) => nameFilter === "" || Cards[id].name.toLowerCase().includes(nameFilter.toLowerCase());
   const filterByColor = (id) => {
+    if (!Object.values(colorFilter).includes(false) ) {
+      return true;
+    }
     let matches = true;
     Cards[id].color_identity.forEach((color) => {
       matches = matches && colorFilter[color];
     });
     return matches;
   }
-  const filterByRarity = (id) => {
-    return rarityFilter[Cards[id].rarity];
-  }
+  const filterByRarity = (id) => !Object.values(rarityFilter).includes(false) || rarityFilter[Cards[id].rarity];
+  const filterBySet = (id) => (setFilter === 'none' || Cards[id].set === setFilter);
 
   // Objects for use in component
   const collectionArray = Object.keys(collection);
   const filteredArray = collectionArray
-    .filter(nameFilter !== "" ? filterByName : () => true)
-    .filter(Object.values(colorFilter).includes(false) ? filterByColor : () => true)
-    .filter(Object.values(rarityFilter).includes(false) ? filterByRarity : () => true);
+    .filter(filterByName)
+    .filter(filterByColor)
+    .filter(filterByRarity)
+    .filter(filterBySet);
   const pageSize = 25;
   const pages = Math.ceil(filteredArray.length / pageSize);
   const paginatedCollection = paginate(filteredArray, page, pageSize);
@@ -174,6 +180,10 @@ function App() {
               style={{marginLeft:2, marginRight: 10}}
               />
           }
+          <DropdownFilter 
+          filterName="Set Filter: "
+          value={setFilter}
+          onChange={selectChange} />
         </div>
           {
             pages > 1 &&
@@ -219,7 +229,7 @@ function App() {
       }
       {
         pageLoading &&
-        <div id="loader">Loading <div class="lds-roller"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div></div>
+        <div id="loader">Loading <div className="lds-roller"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div></div>
       }
     </div>
   );
