@@ -6,6 +6,7 @@ import { Card, CheckboxFilter, DropdownFilter } from './components';
 const debugCollection = require('./devData/collection.json');
 const debugCards = require('./devData/debugCards.json');
 const debugging = process.env.REACT_APP_DEBUGGING === 'true';
+const notProduction = process.env.NODE_ENV !== 'production';
 
 const getParams = (location) => {
   const searchParams = new URLSearchParams(location.search);
@@ -46,7 +47,7 @@ function App() {
 
   // Effect Hooks
   useEffect(() => {
-    if (debugging) {
+    if (notProduction && debugging) {
       setCollection(debugCollection);
       setLoading({collection: false});
     } else {
@@ -90,8 +91,13 @@ function App() {
     setSelected(filtered);
   };
   const addToCube = () => !selected.includes(chosen) && setSelected([...selected, chosen]);
-  const xport = () => {
-    const cardList = selected.map((id) => Cards[id].name + '\n');
+  const xport = (exportSet) => {
+    let cardList;
+    if (exportSet) {
+      cardList = exportSet.map((id) => Cards[id].name + '\n');
+    } else {
+      cardList = selected.map((id) => Cards[id].name + '\n');
+    }
     const data = new Blob(cardList, {type: 'text'});
     const fileURL = window.URL.createObjectURL(data);
     const tempLink = document.createElement('a');
@@ -209,7 +215,9 @@ function App() {
         }
       </div>
       <div id="selectorContainer">
-        <button onClick={xport}>Export Cube</button>
+        <button onClick={() => xport()}>Export Cube</button>
+        <button onClick={() => xport(collectionArray)}>Export All</button>
+        <button onClick={() => xport(filteredArray)}>Export Filtered</button>
       </div>
       <div id="statContainer"><span>Card Count: {selected.length}</span></div>
       <div id="pageCountContainer">{ pages > 1 && <span>Page: {page} of {pages}</span> }</div>
