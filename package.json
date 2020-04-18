@@ -5,6 +5,7 @@
 	"main": "server.js",
 	"scripts": {
 		"start": "node server.js",
+		"dynamo": "java -Djava.library.path=./DynamoDBLocal_lib -jar ~/Downloads/dynamodb_local_latest/DynamoDBLocal.jar -sharedDb",
 		"logs": "heroku logs --app mtgadraft -t --source app",
 		"test": "mocha test --exit"
 	},
