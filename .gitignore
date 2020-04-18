@@ -64,3 +64,4 @@ data/scryfall-all-cards.json
 data/BulkArena.json
 Makefile
 certs/*
+shared-local-instance.db
