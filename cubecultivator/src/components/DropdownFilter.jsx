@@ -73,12 +73,12 @@ const sets = [
 	'und'
 ];
 
-const DropdownFilter = ({ filterName, style, value, onChange }) => (
+const DropdownFilter = ({ filterName, style, value, onChange, choices = sets}) => (
 		<label key={filterName}>
 			{filterName}
 			<select id="setFilterSelect" style={style} value={value} onChange={onChange}>
 				{
-					sets.map((set) => <option value={set}>{set}</option>)
+					choices.map((choice) => <option value={choice}>{choice}</option>)
 				}
 			</select>
 		</label>

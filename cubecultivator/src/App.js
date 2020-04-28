@@ -40,6 +40,8 @@ function App() {
   const [Cards, setCards] = useState({});
   const [page, setPage] = useState(1);
   const [nameFilter, setNameFilter] = useState("");
+  const [cmcFilter, setCMCFilter] = useState(0);
+  const [cmcCompareFilter, setCMCCompareFilter] = useState("=");
   const [colorFilter, setColorFilter] = useState(initColorFilterState);
   const [rarityFilter, setRarityFilter] = useState(initRarityFilterState);
   const [setFilter, setSetFilter] = useState('none');
@@ -131,6 +133,10 @@ function App() {
     setSetFilter(e.target.value);
     setPage(1);
   };
+  const cmcChange = (e) => {
+    setCMCCompareFilter(e.target.value);
+    setPage(1);
+  };
   const filterByName = (id) => nameFilter === "" || Cards[id].name.toLowerCase().includes(nameFilter.toLowerCase());
   const filterByColor = (id) => {
     if (!Object.values(colorFilter).includes(false) ) {
@@ -144,6 +150,25 @@ function App() {
   }
   const filterByRarity = (id) => !Object.values(rarityFilter).includes(false) || rarityFilter[Cards[id].rarity];
   const filterBySet = (id) => (setFilter === 'none' || Cards[id].set === setFilter);
+  const filterByCMC = (id) => {
+    if (cmcCompareFilter === "=" && parseInt(cmcFilter) === 0) {
+      return true;
+    }
+    switch (cmcCompareFilter) {
+      case "=":
+        return Cards[id].cmc === parseInt(cmcFilter)
+      case ">":
+        return Cards[id].cmc > parseInt(cmcFilter)
+      case ">=":
+        return Cards[id].cmc >= parseInt(cmcFilter)
+      case "<":
+        return Cards[id].cmc < parseInt(cmcFilter)
+      case "<=":
+        return Cards[id].cmc <= parseInt(cmcFilter)
+      default:
+        return Cards[id].cmc === parseInt(cmcFilter)
+    }
+  };
 
   // Objects for use in component
   const collectionArray = Object.keys(collection);
@@ -151,7 +176,8 @@ function App() {
     .filter(filterByName)
     .filter(filterByColor)
     .filter(filterByRarity)
-    .filter(filterBySet);
+    .filter(filterBySet)
+    .filter(filterByCMC);
   const pageSize = 25;
   const pages = Math.ceil(filteredArray.length / pageSize);
   const paginatedCollection = paginate(filteredArray, page, pageSize);
@@ -167,6 +193,16 @@ function App() {
           <label htmlFor="nameFilter">
             Filter by Name
             <input id="nameFilter" name="nameFilter" type="text" value={nameFilter} onChange={(e) => filterChange(e, setNameFilter)}></input>
+          </label>
+          <label htmlFor="cmcFilter">
+            Filter by CMC
+            <DropdownFilter 
+            filterName=""
+            value={cmcCompareFilter}
+            onChange={cmcChange} 
+            choices={["=", ">", ">=", "<", "<="]}
+            />
+            <input id="cmcFilter" name="cmcFilter" type="number" value={cmcFilter} onChange={(e) => filterChange(e, setCMCFilter)}></input>
           </label>
           <span> Filter by Color: </span>
           {
