@@ -893,10 +893,11 @@ app.use((req, _res, next) => {
 
 app.use('/api', router);
 
-
-app.get('*', function(req, res) {  
-    res.redirect('https://' + req.headers.host + req.url);
-})
+if (process.env.NODE_ENV == 'production') { // redirect to https for production
+	app.get('*', function(req, res) {  
+		res.redirect('https://' + req.headers.host + req.url);
+	});
+}
 
 Promise.all([Persistence.InactiveConnections, Persistence.InactiveSessions]).then((values) => {
 	InactiveConnections = values[0];

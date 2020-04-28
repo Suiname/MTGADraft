@@ -139,6 +139,12 @@
 
 #nameFilter {
   margin-left: 2px;
+  margin-right: 2px;
+}
+
+#cmcFilter {
+  margin-left: 2px;
+  max-width: 20px;
 }
 
 /* loading components */
